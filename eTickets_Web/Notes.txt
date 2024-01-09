@@ -1,0 +1,323 @@
+﻿
+
+1. Modellerin yaratılması
+	-Actor
+	-Producer
+	-Cinema
+	-Movie
+	-Data/Enums/MovieCategory - enum: a special "class" that represents a group of constants (unchangeable/read-only variables)
+
+2. Gerekli paketlerin yüklemesi
+	- EntityFramework.Core
+	- EntityFramework.Core.Tools
+	- EntityFramework.Core.SqlServer
+
+3. AppDbContext yaratılması
+
+4. Program.cs -> DbContext servisinin eklenmesi (parametresiz olarak )
+
+5. Model ilişkilendirmeleri
+	Producer classına Movies classının ilişkilendirilmesi
+
+	Cinema classına Movies classının ilişkilendirilmesi
+
+	Actor_Movie classının eklenmesi(Many-to-many)
+
+	Actor classına Actor_Movie classının ilişkilendirilmesi
+
+	Movie classına Actor_Movie classının ilişkilendirilmesi ve relationların kurulması
+
+6. AppDbContext içinde relation tanımlarının yapılması
+-
+7. appsettings.json ConnectionString ayarlanması
+
+8. Program.cs altında AppDbContext in ayarlanması
+
+9. Migration - Update db
+
+10. Seeding sample data (AppDbInitializer.cs)
+
+11. Program.cs -> Seeding
+.. 1.gün
+====================
+.. 2.gün
+Controllers
+
+12. Actors Controller : Viewsiz breakpoint denemesi /Actors/Index , /Actors
+
+13. Producers Controller
+
+14. Cinemas Controller
+
+15. Movies Controller
+
+=====================
+
+Views
+
+16. Actors List
+	1.	View a actorsdata yı gönderiyoruz, view a da modeli tanımlıyoruz 
+	2.	Normal bir şekilde bir tablo yapısında listeleme
+	3.run
+	4. _Layout.cshtml de divlerde duzenleme "container-fluid"
+	5. Bootstrap icons eklenmesi
+
+17. Producers 
+
+18. Cinemas
+
+19. Movies
+
+20. Movie Card
+
+21. Designing Navigation Bar
+En tepeye bir menü ve butonlar(yetkiye göre) _Layout (ARIA (Erişilebilir Zengin İnternet Uygulamaları))
+
+- 2.gün sonu
+===================================
+- 3.gün
+Navigation da sağ tarafın yapılmasına devam(search bar,Login,Logout)
+
+
+launchsettings - LaunchURL
+Home controller view Home kaldır. Layout Home->Movie
+
+
+============********************
+Working with Actor data
+
+Normalde veri alışverişlerinin genelde controller üzerinden yapıldığı durumlar vardır. ama bu pek doğru bir yol değildir. bunun yerine bu tür işleri gerçekleştirecek olan Servis lerin yapılması daha doğru bir seçenektir.
+
+Actor verileriyle çalışmadan önce bir service interface'i yaratmak ile işe başlayabiliriz. Bunu controller a injecte ederek veri alışverişini gerçekleştirebiliriz.
+
+22. Data/Services dizini yaratılıp, IActorsService tanımlanması
+
+23. Actors Servisinin tanımlanması
+Öncelikle db işlemlerini servislere yükleyeceğimiz için dbcontext tanımını ActorsService üzerine tanımlayalım. 
+Ve ilk olarak GetAll metodunu tanımlayalım.
+
+--Asenkron işlemler için IActorsService altında GetAll metodunu async haline getirelim. ve ActorsService altında da gerekli değişiklikleri yapalım. ve ActorsController altında da.
+
+Programı çalıştırdığımızda bir hata verecek "Servisimizin register olmadığı hk.". 
+* Bir servisi controller a inject edebilmek için , bu servisi Program.cs altında register etmeniz gerekmektedir.
+
+24. Design first form - Actor Create
+
+ActorsController dan Create View
+Create View script eklenmesi Picture preview için
+Index sayfasına Create linkinin eklenmesi
+Örnek image: https://www.dotnethow.net/images/actors/actor-2.jpeg
+
+25. Model Validation
+ActorsController HttpPost..Model IsValid için Actor modeline Required eklenmesi (Actor_Movies ? yoksa model invalid oluyor)
+
+26. Getting item by id - Actor Details 
+	- ActorsService - IActorsService (asenkron ayarları) - Index sayfası
+
+27. Actors Edit
+	Kontrol : IActorsService
+	ActorsController'da Edit bölümü yaratılması
+	ActorsService de Update bölümü yazılması
+	Edit View yaratılması 
+
+28. Actors Delete
+	ActorsController,ActorsService,Delete view
+
+29. Not Found View
+	Shared - Hepsi için ortak olduğundan
+
+30. EntityBaseRepository
+	Çoklu miktarda tablo için CRUD işlemleri için kod içine gömmek yerine BaseRepository yapısını kullanmak daha doğru bir seçenek olacaktır.Böylelikle model yapılarında ortak olan propertyleri tek bir yerde toplamak mümkün olmaktadır.
+
+	IEntityBase,IEntityBaseRepository create
+	IActorsService -> IEntityBaseRepository copy,update T's
+	EntityBaseRepository(service gibi)
+
+	ActorsService den GetAll ve GetbyId yi taşıma -> EntityBaseRepository ye 
+
+31. BaseRepository'e Add,Update,Delete metodlarının eklenmesi
+
+32. ActorsService inin EntityBaseRepository ile konfigüre edilmesi
+	
+	Actor modelini IEntityBase'den implemente etmek  gerekiyor.
+	
+	Kalıtım yaptıktan sonra isterseniz Id alanını silebilirsiniz. silmeseniz bile Interfaceden zaten gelecektir.
+	
+	IActorsService giderek tüm metotları silip artık IEntityBaseRepository den implemente edebiliriz.(çünkü metotları oraya tanımladık ve metotları EntityBaseRepository classına taşıdık/yazdık)
+
+	ActorServicee giderek EntityBaseRepositoryden kalıtabiliriz. Dolayısı ile bunun içindeki tüm metotları da silebiliriz. çünkü kalıtımdan gelecekler. Constructır ı da base classdan alırız..
+
+	GetAll breakpoint koyup çalıştırdığımızda add işleminde yapmadığını görürüz.
+
+	Entitybase repository add,delete,update metodlarına _context.savechanges yapmamız gerekiyor.
+
+
+========
+Working with Producer Data
+
+33. Data/Interfaces dizini altına IProducersService Interface'inin tanımlanması ve bunu yaparken Producer modeline de IEntityBase interface'inden implement edilmesi
+
+34. Data/Services dizini altına ProducersService classının tanımlanması
+
+35. Program.cs içine bu servisin register edilmesi
+
+36. ProducersController altına servislerin tanımlanması
+
+37. Create-Edit-Delete-Details viewları ve Controller a kodların tanımlanması
+
+=======
+Working with Cinema Data
+
+38. Data/Interfaces dizini altına ICinemasService Interface'inin tanımlanması ve bunu yaparken Cinema modeline de IEntityBase interface'inden implement edilmesi
+
+39. Data/Services dizini altına CinemasService classının tanımlanması
+
+40. Program.cs içine bu servisin register edilmesi
+
+41. CinemasController altına servislerin tanımlanması
+
+42. Edit-Delete-Details viewları ve Controller a kodların tanımlanması
+
+=======
+Working with Movie Data
+
+43. Data/Interfaces dizini altına IMoviesService Interface'inin tanımlanması,IEntityBaseRepository<Movie> implemente edilmesi ve bunu yaparken Movie modeline de IEntityBase interface'inden implement edilmesi
+
+44. Data/Services dizini altına MoviesService classının tanımlanması (EntityBaseRepository<Movie>, IMoviesService den kalıtım alarak) ve constructor tanımlanması
+
+45. Program.cs içine bu servisin register edilmesi
+
+46. MoviessController altına servislerin tanımlanması. 
+	Burada farklı bir durum var. Relation olayından dolayı servisdeki normal GetAll Metodu ilişkisel değil. Bunun için IEntityBaseRepository içinde yine aynı isimde fakat relation olayına göre çalışacak ayrı bir metot imzası tanımlamak ve bunu EntityBaseRepository içine implemente etmek  gerekiyor.
+
+47. Movie Details
+	Movie modeli diğer modellerden biraz farklı olduğundan dolayı IMovieService ve MovieService üzerinde biraz farklı işlemler yapmak gerekiyor.
+	
+	IMoviesService... üzerine Detay görünümde kullanabilmek için diğerlerinden farklı (birden fazla relation var çünkü) bir GetMovieById metodu tanımlamak gerekiyor.
+
+	Bu yapıyı MoviesService üzerine implemente edelim.
+	
+	Index.cshtml üzerinde de DetailsAction ayarlamasını yapalım
+	
+	MoviesController üzerinde de Details View Action yaratalım. ve Details View yaratalım.
+
+48. Passing data to a view
+	strongly typed - ViewModel (bir view için tanımlanmış bir model)
+	weakly typed - ViewData-ViewBag
+
+	MoviesController - Create Action
+
+49. Create Movie Form
+	ViewModel yaratmak...NewMovieVM...ve Create view a tanımlamak
+
+50. Partial View
+	Movies,Actors,Producers,Cinemas için ortak bir AddNew Partial View yaratmak.(herhangi bir viewdan kopye olarak alınabilir)
+	--
+51. Yeni bir film ekleme
+	. IMoviesService içine bir metot tanımlayalım MoviesService e implement edelim
+
+52. Update movie
+	Movie Indexine Kalem ikonuna action=Edit tanımlamak, IMovieService, MovieService,Controller
+
+53. Searching
+	_Layout Movies/Filter 
+
+======
+Authentication and authorization
+Identity Framework - ASP.Net projesi için Kimlik doğrulama ve yetkilendirme
+
+Users and Roles and User Manager and Role Manager
+
+54. Adding Identity Tables
+	Model klasörüne ApplicationUser.cs class eklenmesi ve IdentityUser base classından inherit edilmesi....Goto definition ile içeriğine bakılması
+	Property eklenmesi (FullName)
+
+	Projeye Microsoft.AspNetCore.Identity.EntityFrameworkCore paketinin yüklenmesi
+
+	AppDbContext de DbContext -> IdentityDbContext<ApplicationUser>
+
+	Yeni bir migration ile dbnin güncellenmesi
+
+	Bazı datalarla db nin Seed edilmesi : AppDbInitializer
+
+	Bunu yaparken Data/Static altına statik olacak bir UserRole.cs eklenmesi ve AppDbInitializer kodlarının yazılması
+
+	Program.cs altından çağırma kodları
+
+	Çalıştırmadan önce gerekli service configurationların yapılması(Program.cs) app. lere tanımlama ve çalıştırma tabloları inceleme
+
+55. Account Controller
+
+	Constructor tanımlanması
+
+56. Designing Login View (Pass:Coding@1234?)
+
+	_Layout ayarları ve controller Login...LoginVM yaratılması
+
+	controller a tanımlanması ve Login View yaratılması
+
+57. Logging Users
+	AccountController
+
+58. Design SignUp View
+	_Layout ayarları(iki adet buton ekleme en sağa) ve controller Register...RegisterVM yaratılması
+	AccountControllera Register kısımlarının tanımlanması
+
+59. RegisterCompleted.cshtml yaratılması
+
+60. Signout..._Layout...AccountController a Action eklenmesi(Logout)
+
+61. _Identity.cshtml PartialView eklenmesi
+	Amaç : Üstteki Navigation bar da bulunan Login,Register,Logout kısımlarının bir Partial View'den gelmesi içindir(örneğidir) 
+
+62. Identity based menu items
+	_Identity.cshtml partial view'ında kullanıcının henüz kimliğinin doğrulanmadığı (!authenticate) durumda ekranda Login ve Register butonlarının görünmesi, aksi halde eğer doğrulanmışsa bu butonların görünmemesi ve kullanıcının adının ve Logout butonunun gösterilmesi sağlanacaktır.
+
+63. Role based 
+	_Layout üzerinde Management kısmına Authenticate eklenmesi...Movies/Index e de..Actors,Cinemas,movies,producers,_createitem
+
+
+64. Authorize in controller
+	Elle controllerlara Movies/create gibi dendiğinde butonlar gözüküyor. bunu engellemek için controller a kontroller koymalı.Actors,cinemas,movies,producers
+
+65. Adding role checks.
+	Normal kullanıcı olarak girip...adres satırından gittiğinde create e herşey görünüyor
+	Controllerlarda [Authorize(Roles =UserRoles.Admin)] yapmak gerekiyor...yapmak isteyince AccessDenied
+
+	=============================
+
+- Movies Controller üzerinde yetkilendirilecek bölümler ekliyoruz ve diğer controllerlara da
+
+- Viewlara if yapısı,_identity ,_createitem  a da
+
+- Layout ..management kısmı
+
+- program.cs ... use authentication
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
